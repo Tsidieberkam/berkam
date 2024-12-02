@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -38,6 +39,9 @@ public class Compte {
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "compte_transaction", joinColumns = @JoinColumn(name = "numero_compte"), inverseJoinColumns = @JoinColumn(name = "numero_transaction"))
     List<Transaction> transaction = new ArrayList<>();
+    @Transient
+    private String errormessage;
+    
 
     
 }

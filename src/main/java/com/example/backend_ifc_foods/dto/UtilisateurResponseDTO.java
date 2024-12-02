@@ -27,7 +27,7 @@ public class UtilisateurResponseDTO {
     private Date date_inscription;
     private Set<Role> roles = new HashSet<>();
     private Compte compte;
-   
+    private String errormessage;
 
     
 }

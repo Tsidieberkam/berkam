@@ -15,6 +15,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -40,6 +41,8 @@ public class Transaction {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "transaction_produit",joinColumns = @JoinColumn(name ="numero_transaction"),inverseJoinColumns = @JoinColumn(name = "id_produit"))
     private List<Produit> produits = new ArrayList<>();
+    @Transient
+    private String errormessage;
     
     
 

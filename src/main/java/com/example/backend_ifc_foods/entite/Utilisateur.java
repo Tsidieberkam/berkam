@@ -1,19 +1,16 @@
 package com.example.backend_ifc_foods.entite;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -39,11 +36,14 @@ public class Utilisateur {
     private String password;
     @Column(name="date_inscription")
     private Date date_inscription;
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "utilisateur_roles",joinColumns = @JoinColumn(name ="id_utilisateur"),inverseJoinColumns = @JoinColumn(name = "id_role"))
-    private Set<Role> roles = new HashSet<>();
+    @Enumerated(EnumType.STRING) 
+    private Role role;
+    @Enumerated(EnumType.STRING) 
+    private Status status;
     @OneToOne
     @JoinColumn(name = "numero_compte")
     private Compte compte;
+    @Transient
+    private String errormessage;
     
 }

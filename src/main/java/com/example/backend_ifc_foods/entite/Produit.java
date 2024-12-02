@@ -16,6 +16,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -46,5 +47,8 @@ public class Produit {
     @ManyToOne
     @JoinColumn(name = "id_categorie")
     private Categorie categorie;
+    @Transient
+    private String errormessage;
+    
 }   
   

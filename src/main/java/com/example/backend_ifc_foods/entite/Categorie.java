@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,4 +32,7 @@ public class Categorie {
     @OneToMany(fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(name = "categorie_produit", joinColumns = @JoinColumn(name = "id_categorie"), inverseJoinColumns = @JoinColumn(name = "id_produit"))
     List<Produit> produits = new ArrayList<>();
+    @Transient
+    private String errormessage;
+    
 }

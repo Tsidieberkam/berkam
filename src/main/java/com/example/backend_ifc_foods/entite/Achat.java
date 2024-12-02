@@ -2,6 +2,7 @@ package com.example.backend_ifc_foods.entite;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,4 +15,7 @@ import lombok.NoArgsConstructor;
 public class Achat extends Transaction {
     @Column(name = "acheteur")
     private String nom_acheteur;
+    @Transient
+    private String errormessage;
+    
 }
