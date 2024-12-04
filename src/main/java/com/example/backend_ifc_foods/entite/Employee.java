@@ -20,7 +20,7 @@ public class Employee extends Utilisateur{
     @Transient
     private String errormessage;
     @ManyToOne
-    @JoinColumn(name = "id_entreprise", nullable = false)
+    @JoinColumn(name = "id_entreprise", nullable = true)
     private Entreprise entreprise;
     
 }

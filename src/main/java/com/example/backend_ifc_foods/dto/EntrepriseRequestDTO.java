@@ -13,5 +13,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 public class EntrepriseRequestDTO extends   UtilisateurRequestDTO {
     private String domaine_activite;   
+    
   
 }

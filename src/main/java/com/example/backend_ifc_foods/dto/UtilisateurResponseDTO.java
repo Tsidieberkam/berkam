@@ -2,13 +2,13 @@ package com.example.backend_ifc_foods.dto;
 
 
 import java.util.Date;
-import java.util.HashSet;
 
-import java.util.Set;
 
 import com.example.backend_ifc_foods.entite.Compte;
 
 import com.example.backend_ifc_foods.entite.Role;
+import com.example.backend_ifc_foods.entite.Status;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,9 +25,10 @@ public class UtilisateurResponseDTO {
     private String email;
     private String password;
     private Date date_inscription;
-    private Set<Role> roles = new HashSet<>();
+    private Role roles ;
     private Compte compte;
     private String errormessage;
+    private Status status;
 
     
 }

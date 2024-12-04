@@ -18,4 +18,5 @@ import lombok.NoArgsConstructor;
 public class AssuranceResponseDTO extends UtilisateurResponseDTO {
     private String code_ifc;
     private List<Entreprise> entreprises = new ArrayList<>();
+    
 }

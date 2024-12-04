@@ -2,12 +2,23 @@ package com.example.backend_ifc_foods.Service;
 
 import java.util.List;
 
+import com.example.backend_ifc_foods.dto.AssuranceRequestDTO;
+import com.example.backend_ifc_foods.dto.AssuranceResponseDTO;
+import com.example.backend_ifc_foods.dto.EmployeRequestDTO;
+import com.example.backend_ifc_foods.dto.EmployeResponseDTO;
+import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
+import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
-import com.example.backend_ifc_foods.entite.Utilisateur;
+
+
 
 public interface UtilisateurService {
-    public List<UtilisateurResponseDTO> inscrip(List<UtilisateurRequestDTO> ures);
-    public List<UtilisateurResponseDTO> listuser();
-    public Utilisateur connexBoolean(UtilisateurRequestDTO ur);
+    public List<EmployeResponseDTO> inscrip(EmployeRequestDTO ures);
+    public List<EntrepriseResponseDTO> inscriptent(EntrepriseRequestDTO enrdto ,UtilisateurResponseDTO utilisateurConnecte);
+    public List<EmployeResponseDTO> listemploye();
+    public List<EntrepriseResponseDTO> listentreprise();
+    public List<AssuranceResponseDTO> inscriptass(AssuranceRequestDTO assuranceRequestDTO );
+    public List<AssuranceResponseDTO> listassurance();
+    public UtilisateurResponseDTO connexBoolean(UtilisateurRequestDTO ur);
 }

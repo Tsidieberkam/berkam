@@ -16,6 +16,7 @@ public class UtilisateurRequestDTO {
     private String email;
     private String password;
     private Date date_inscription;
+    private long id_entreprise;
     
     
 }
