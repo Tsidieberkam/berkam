@@ -21,4 +21,5 @@ public class EntrepriseResponseDTO extends UtilisateurResponseDTO {
     private List<Employee> employes = new ArrayList<>();
     private List<Assurance> assurances= new ArrayList<>();
     
+    
 }

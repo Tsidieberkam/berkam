@@ -1,6 +1,8 @@
 package com.example.backend_ifc_foods.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -176,6 +178,12 @@ public class Utilisateurserviceimpl implements UtilisateurService {
            nt.setAssurances(asus);
            utire.save(nt);
 
+           List<Entreprise> entt = new ArrayList<>();
+           entt.add(nt);
+
+           assuran.setEntreprises(entt);
+           assrr.save(assuran);
+
         }else{
          EntrepriseResponseDTO et = new EntrepriseResponseDTO();
           String message = "l'entreprise " + enrdto.getNom() +  "existe deja";
@@ -209,7 +217,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         etres.setStatus(e.getStatus());
         etres.setDate_inscription(e.getDate_inscription());
         etres.setDomaine_activite(e.getDomaine_activite());
-        etres.setAssurances(e.getAssurances());
+        etres.setAssurances(Collections.singletonList(e.getAssurances().get(0)));
 
         hj.add(etres);
         

@@ -29,10 +29,8 @@ public class Entreprise extends Utilisateur{
     private List<Employee> employes = new ArrayList<>();
     @Transient
     private String errormessage;
-    @ManyToMany(fetch = FetchType.EAGER ,cascade = CascadeType.REMOVE)
-    @JoinTable( name = "entreprise_assurance", joinColumns = @JoinColumn(name = "id_utilisateur"),inverseJoinColumns = @JoinColumn(name = "id_utilisateur_assurance"))
-    private List<Assurance> assurances= new ArrayList<>();
-    
+    @ManyToMany(mappedBy = "entreprises") // Indique que la relation est définie dans Assurance
+    private List<Assurance> assurances = new ArrayList<>();
     
     
 }
