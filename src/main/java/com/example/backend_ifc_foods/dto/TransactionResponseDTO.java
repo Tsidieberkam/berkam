@@ -3,7 +3,7 @@ package com.example.backend_ifc_foods.dto;
 import java.util.Date;
 
 import com.example.backend_ifc_foods.entite.Compte;
-import com.example.backend_ifc_foods.entite.Facture;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -19,6 +19,5 @@ public class TransactionResponseDTO {
     private double montant;
     private String typetransaction;
     private Compte compte;
-    private Facture facture;
-    
+   
 }

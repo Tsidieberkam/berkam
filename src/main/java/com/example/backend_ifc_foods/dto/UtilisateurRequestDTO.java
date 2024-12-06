@@ -13,7 +13,7 @@ public class UtilisateurRequestDTO {
     private String telephone;
     private String quartier;
     private String ville;
-    private String email;
+    private String email;                                                                   
     private String password;
     private Date date_inscription;
     private long id_entreprise;

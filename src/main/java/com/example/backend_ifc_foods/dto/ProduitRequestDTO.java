@@ -5,7 +5,7 @@ import java.util.List;
 
 
 import com.example.backend_ifc_foods.entite.Document;
-import com.example.backend_ifc_foods.entite.Stock;
+
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,5 +21,5 @@ public class ProduitRequestDTO {
     private String qrcode;
     private List<Document> documents = new ArrayList<>();
     private String nom_categorie;
-    private Stock stock;
+  
 }

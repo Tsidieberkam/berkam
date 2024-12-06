@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,7 +15,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,10 +35,7 @@ public class Transaction {
     @ManyToOne
     @JoinColumn(name = "numero_compte")
     private Compte compte;
-    @OneToOne
-    @JoinColumn(name = "id_facture")
-    private Facture facture;
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     @JoinTable(name = "transaction_produit",joinColumns = @JoinColumn(name ="numero_transaction"),inverseJoinColumns = @JoinColumn(name = "id_produit"))
     private List<Produit> produits = new ArrayList<>();
     @Transient

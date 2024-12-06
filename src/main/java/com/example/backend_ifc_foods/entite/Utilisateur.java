@@ -8,8 +8,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -40,9 +38,6 @@ public class Utilisateur {
     private Role role;
     @Enumerated(EnumType.STRING) 
     private Status status;
-    @OneToOne
-    @JoinColumn(name = "numero_compte")
-    private Compte compte;
     @Transient
     private String errormessage;
     

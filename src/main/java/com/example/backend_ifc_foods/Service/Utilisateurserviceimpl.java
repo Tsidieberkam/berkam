@@ -1,11 +1,11 @@
 package com.example.backend_ifc_foods.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+
 import java.util.Date;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +39,9 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     private EmployeRepository erty;
     private  AssuranceRepository assrr;
 
+    @Autowired
+    private EmailService emailService;
+
     public Utilisateurserviceimpl(UtilisateurRepository utire, EntrepriseRepository ersi, EmployeRepository erty ,AssuranceRepository assrr) {
         this.utire = utire;
         this.ersi = ersi;
@@ -62,24 +65,28 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             em.setRole(Role.EMPLOYE);
             em.setStatus(Status.EN_ATTENTE);
 
-            // assignation de l'entreprise a l'employe
+            // Assignation de l'entreprise à l'employé
             long ide = ures.getId_entreprise();
-            Entreprise ure = ersi.findById(ide).get();
-            if (ure == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "entreprise non trouvee");
-            }
+            Entreprise ure = ersi.findById(ide).orElseThrow(() ->
+                    new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entreprise non trouvée"));
             em.setEntreprise(ure);
             utire.save(em);
 
-           
+            // Envoi de l'email à l'entreprise
+            String emailEntreprise = ure.getEmail();
+            String subject = "Nouveau Employé enregistré";
+            String body = String.format(
+                    "Bonjour %s,\n\nUn nouvel employé nommé %s a été enregistré et associé à votre entreprise. "
+                            + "Veuillez activer son compte dans votre interface.\n\nCordialement,\nL'équipe EasyFood.",
+                    ure.getNom(), em.getNom());
+            emailService.sendEmail(emailEntreprise, subject, body);
 
         } else {
             EmployeResponseDTO urp = new EmployeResponseDTO();
             urp.setNom(ures.getNom());
             urp.setEmail(ures.getEmail());
-            urp.setErrormessage("utilisateur existe deja");
+            urp.setErrormessage("Utilisateur existe déjà");
             smserror.add(urp);
-
         }
 
         if (!smserror.isEmpty()) {
@@ -109,17 +116,9 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             erl.setDate_inscription(e.getDate_inscription());
             erl.setRoles(e.getRole());
             erl.setStatus(e.getStatus());
-    
-            // Gestion des relations complexes (ex. : `Compte`, `Entreprise`)
-            if (e.getCompte() != null) {
-                erl.setIdcop(e.getCompte().getNumero_compte()); // par exemple, si vous voulez juste le numéro de compte
-            } 
-    
-            if (e.getEntreprise() != null) {
-                erl.setNom_entreprise(e.getEntreprise().getNom()); // Ou d'autres informations de l'entreprise
-            }
-    
-            // Ajout du DTO dans la liste finale
+            erl.setEntreprise(e.getEntreprise());
+     
+               
             allemp.add(erl);
         }
     
@@ -168,21 +167,15 @@ public class Utilisateurserviceimpl implements UtilisateurService {
            nt.setDate_inscription( new Date());
            nt.setDomaine_activite(enrdto.getDomaine_activite());
 
-
-           List<Assurance> asus = new ArrayList<>();
            Assurance assuran =assrr.findById(utilisateurConnecte.getId_utilisateur()).get();
            if(assuran == null){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST , "probleme interne");
            }
-           asus.add(assuran);
-           nt.setAssurances(asus);
+           nt.setAssurance(assuran);
+           
            utire.save(nt);
 
-           List<Entreprise> entt = new ArrayList<>();
-           entt.add(nt);
-
-           assuran.setEntreprises(entt);
-           assrr.save(assuran);
+         
 
         }else{
          EntrepriseResponseDTO et = new EntrepriseResponseDTO();
@@ -217,7 +210,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         etres.setStatus(e.getStatus());
         etres.setDate_inscription(e.getDate_inscription());
         etres.setDomaine_activite(e.getDomaine_activite());
-        etres.setAssurances(Collections.singletonList(e.getAssurances().get(0)));
+        etres.setAssurance(e.getAssurance());
 
         hj.add(etres);
         
@@ -239,7 +232,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             nt.setEmail(assuranceRequestDTO.getEmail());
             nt.setPassword(assuranceRequestDTO.getPassword());
             nt.setRole(Role.ASSURANCE);
-            nt.setStatus(Status.EN_ATTENTE);
+            nt.setStatus(Status.ACTIF);
             nt.setDate_inscription( new Date());
             
   
