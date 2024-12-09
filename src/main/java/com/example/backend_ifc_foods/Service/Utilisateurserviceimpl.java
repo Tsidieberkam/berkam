@@ -1,5 +1,6 @@
 package com.example.backend_ifc_foods.Service;
 
+import java.security.SecureRandom;
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -7,6 +8,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -21,6 +23,7 @@ import com.example.backend_ifc_foods.dto.EmployeRequestDTO;
 import com.example.backend_ifc_foods.dto.EmployeResponseDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
+import com.example.backend_ifc_foods.dto.OtpDataRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 import com.example.backend_ifc_foods.entite.Assurance;
@@ -40,19 +43,25 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     private  AssuranceRepository assrr;
 
     @Autowired
+    private OtpService otpService;
+
+
+    @Autowired
     private EmailService emailService;
 
-    public Utilisateurserviceimpl(UtilisateurRepository utire, EntrepriseRepository ersi, EmployeRepository erty ,AssuranceRepository assrr) {
+  
+
+    public Utilisateurserviceimpl(UtilisateurRepository utire, EntrepriseRepository ersi, EmployeRepository erty,
+            AssuranceRepository assrr) {
         this.utire = utire;
         this.ersi = ersi;
         this.erty = erty;
-        this.assrr= assrr;
+        this.assrr = assrr;
+      
     }
 
     @Override
-    public List<EmployeResponseDTO> inscrip(EmployeRequestDTO ures) {
-        List<EmployeResponseDTO> smserror = new ArrayList<>();
-
+    public  ResponseEntity<?> inscrip(EmployeRequestDTO ures) {
         if (utire.findByNomAndEmail(ures.getNom(), ures.getEmail()) == null) {
             Employee em = new Employee();
             em.setNom(ures.getNom());
@@ -63,7 +72,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             em.setPassword(ures.getPassword());
             em.setDate_inscription(new Date());
             em.setRole(Role.EMPLOYE);
-            em.setStatus(Status.EN_ATTENTE);
+            em.setStatus(Status.INACTIF);
 
             // Assignation de l'entreprise à l'employé
             long ide = ures.getId_entreprise();
@@ -71,28 +80,25 @@ public class Utilisateurserviceimpl implements UtilisateurService {
                     new ResponseStatusException(HttpStatus.BAD_REQUEST, "Entreprise non trouvée"));
             em.setEntreprise(ure);
             utire.save(em);
+            
+            // Génération et envoi de l'OTP
+             String otp = generateOtp();
+             OtpDataRequestDTO p = new OtpDataRequestDTO(em.getEmail() , 4 , otp);
+             otpService.saveOtp(p);
+             String subject = "Vérification de votre email";
+             String body = "Votre code de vérification est : " + otp;
+             emailService.sendEmail(em.getEmail(), subject, body);
 
-            // Envoi de l'email à l'entreprise
-            String emailEntreprise = ure.getEmail();
-            String subject = "Nouveau Employé enregistré";
-            String body = String.format(
-                    "Bonjour %s,\n\nUn nouvel employé nommé %s a été enregistré et associé à votre entreprise. "
-                            + "Veuillez activer son compte dans votre interface.\n\nCordialement,\nL'équipe EasyFood.",
-                    ure.getNom(), em.getNom());
-            emailService.sendEmail(emailEntreprise, subject, body);
+            // Retour d'une réponse avec statut CREATED
+            return ResponseEntity.status(HttpStatus.CREATED)
+            .body("Code de vérification envoyé à l'adresse email : " + em.getEmail());
 
         } else {
-            EmployeResponseDTO urp = new EmployeResponseDTO();
-            urp.setNom(ures.getNom());
-            urp.setEmail(ures.getEmail());
-            urp.setErrormessage("Utilisateur existe déjà");
-            smserror.add(urp);
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body("Un utilisateur  existe déjà.");
+       
         }
-
-        if (!smserror.isEmpty()) {
-            return smserror;
-        }
-        return listemploye();
+       
     }
 
     @Override
@@ -131,7 +137,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
 
         Utilisateur ure = utire.findByEmailAndPassword(ur.getEmail(), ur.getPassword());
     
-    if (ure == null) {
+    if (ure == null || ure.getStatus() == Status.INACTIF || ure.getStatus() == Status.EN_ATTENTE ) {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Connexion échouée");
     }
 
@@ -276,6 +282,13 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         }
 
         return hj;
+    }
+
+    @Override
+    public String generateOtp() {
+        SecureRandom random = new SecureRandom();
+        int otp = 100000 + random.nextInt(900000); // Génère un nombre entre 100000 et 999999
+        return String.valueOf(otp);
     }
 
 }

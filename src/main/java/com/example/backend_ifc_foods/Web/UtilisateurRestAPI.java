@@ -3,6 +3,7 @@ package com.example.backend_ifc_foods.Web;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.backend_ifc_foods.Service.OtpService;
 import com.example.backend_ifc_foods.Service.UtilisateurService;
 import com.example.backend_ifc_foods.dto.AssuranceRequestDTO;
 import com.example.backend_ifc_foods.dto.AssuranceResponseDTO;
@@ -18,6 +20,7 @@ import com.example.backend_ifc_foods.dto.EmployeRequestDTO;
 import com.example.backend_ifc_foods.dto.EmployeResponseDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
+import com.example.backend_ifc_foods.dto.OtpDataRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 
@@ -30,17 +33,25 @@ import jakarta.servlet.http.HttpSession;
 public class UtilisateurRestAPI {
 
     UtilisateurService us;
+    OtpService ot;
 
-    public UtilisateurRestAPI(UtilisateurService us) {
+    public UtilisateurRestAPI(UtilisateurService us, OtpService ot) {
         this.us = us;
-
+        this.ot = ot;
     }
-    
+
 
     @PostMapping(path = "/saveemploye")
-    public List<EmployeResponseDTO> saveemplo(@RequestBody EmployeRequestDTO rst){
+    public ResponseEntity<?> saveemplo(@RequestBody EmployeRequestDTO rst){
        return us.inscrip(rst);
     }
+
+    
+    @PostMapping(path = "/verifyotp")
+    public ResponseEntity<?> saveemplo(@RequestBody OtpDataRequestDTO opytrd){
+       return ot.verifyOtp(opytrd);
+    }
+
 
     @PostMapping(path ="/cunseru")
     public UtilisateurResponseDTO connexion(@RequestBody UtilisateurRequestDTO uri , HttpSession session){
