@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,6 +45,9 @@ public class Utilisateurserviceimpl implements UtilisateurService {
 
     @Autowired
     private OtpService otpService;
+
+    @Autowired
+    private TokenService tokenService;
 
 
     @Autowired
@@ -226,38 +230,45 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     }
 
     @Override
-    public List<AssuranceResponseDTO> inscriptass(AssuranceRequestDTO assuranceRequestDTO) {
-        List<AssuranceResponseDTO> asst = new ArrayList<>();
-        if(utire.findByNomAndEmail(assuranceRequestDTO.getNom(), assuranceRequestDTO.getEmail()) == null){
-            Assurance nt = new Assurance();
-            nt.setCode_ifc(assuranceRequestDTO.getCode_ifc());
-            nt.setNom(assuranceRequestDTO.getNom());
-            nt.setTelephone(assuranceRequestDTO.getTelephone());
-            nt.setVille(assuranceRequestDTO.getVille());
-            nt.setQuartier(assuranceRequestDTO.getQuartier());
-            nt.setEmail(assuranceRequestDTO.getEmail());
-            nt.setPassword(assuranceRequestDTO.getPassword());
-            nt.setRole(Role.ASSURANCE);
-            nt.setStatus(Status.ACTIF);
-            nt.setDate_inscription( new Date());
-            
-  
- 
-            utire.save(nt);
- 
-         }else{
-           AssuranceResponseDTO et = new AssuranceResponseDTO();
-           String message = "l'assurance" + assuranceRequestDTO.getNom() +  "existe deja";
-           et.setErrormessage(message);
-           asst.add(et);
- 
-         }
-         if(!asst.isEmpty()){
-             return asst;
-         }
- 
-        return listassurance();
+    public ResponseEntity<?> inscriptass(AssuranceRequestDTO assuranceRequestDTO) {
+    // Vérifier si l'assurance existe déjà
+    if (utire.findByNomAndEmail(assuranceRequestDTO.getNom(), assuranceRequestDTO.getEmail()) != null) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body("Cette assurance existe déjà.");
     }
+
+    // Créer une nouvelle assurance avec statut INACTIF
+    Assurance assurance = new Assurance();
+    assurance.setCode_ifc(assuranceRequestDTO.getCode_ifc());
+    assurance.setNom(assuranceRequestDTO.getNom());
+    assurance.setTelephone(assuranceRequestDTO.getTelephone());
+    assurance.setVille(assuranceRequestDTO.getVille());
+    assurance.setQuartier(assuranceRequestDTO.getQuartier());
+    assurance.setEmail(assuranceRequestDTO.getEmail());
+    assurance.setPassword(assuranceRequestDTO.getPassword());
+    assurance.setRole(Role.ASSURANCE);
+    assurance.setStatus(Status.INACTIF);
+    assurance.setDate_inscription(new Date());
+
+    // Sauvegarder l'assurance temporairement
+    Assurance savedAssurance = assrr.save(assurance);
+
+    // Générer un token de confirmation
+    String confirmationToken = UUID.randomUUID().toString();
+    tokenService.saveToken(savedAssurance.getEmail(), confirmationToken);
+
+    // Construire le lien de confirmation
+    String confirmationUrl = "https://0337-102-244-45-236.ngrok-free.app/api/confirm?token=" + confirmationToken;
+
+    // Envoyer l'email de confirmation
+    String subject = "Confirmation de votre compte Assurance";
+    String body = String.format(
+            "Bonjour %s,\n\nMerci de vous être inscrit. Cliquez sur le lien ci-dessous pour confirmer votre compte :\n%s\n\nCordialement,\nL'équipe.",
+            assurance.getNom(), confirmationUrl);
+    emailService.sendEmail(assurance.getEmail(), subject, body);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body("Un email de confirmation a été envoyé.");
+}
+
 
     @Override
     public List<AssuranceResponseDTO> listassurance() {

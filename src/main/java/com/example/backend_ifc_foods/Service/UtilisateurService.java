@@ -20,7 +20,7 @@ public interface UtilisateurService {
     public List<EntrepriseResponseDTO> inscriptent(EntrepriseRequestDTO enrdto ,UtilisateurResponseDTO utilisateurConnecte);
     public List<EmployeResponseDTO> listemploye();
     public List<EntrepriseResponseDTO> listentreprise();
-    public List<AssuranceResponseDTO> inscriptass(AssuranceRequestDTO assuranceRequestDTO );
+    public ResponseEntity<?> inscriptass(AssuranceRequestDTO assuranceRequestDTO );
     public List<AssuranceResponseDTO> listassurance();
     public UtilisateurResponseDTO connexBoolean(UtilisateurRequestDTO ur);
     public String generateOtp();
