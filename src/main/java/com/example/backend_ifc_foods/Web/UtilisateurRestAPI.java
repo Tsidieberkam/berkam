@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.backend_ifc_foods.Repository.AssuranceRepository;
+import com.example.backend_ifc_foods.Repository.EntrepriseRepository;
 import com.example.backend_ifc_foods.Service.OtpService;
 import com.example.backend_ifc_foods.Service.TokenService;
 import com.example.backend_ifc_foods.Service.UtilisateurService;
@@ -28,6 +29,8 @@ import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 import com.example.backend_ifc_foods.entite.Assurance;
 import com.example.backend_ifc_foods.entite.ConfirmationToken;
+import com.example.backend_ifc_foods.entite.Employee;
+import com.example.backend_ifc_foods.entite.Entreprise;
 import com.example.backend_ifc_foods.entite.Status;
 
 import jakarta.servlet.http.HttpSession;
@@ -41,12 +44,15 @@ public class UtilisateurRestAPI {
     OtpService ot;
     AssuranceRepository assrr;
     TokenService ts;
+    EntrepriseRepository ets;
 
-    public UtilisateurRestAPI(UtilisateurService us, OtpService ot, AssuranceRepository assrr, TokenService ts) {
+    public UtilisateurRestAPI(UtilisateurService us, OtpService ot, AssuranceRepository assrr, TokenService ts,
+            EntrepriseRepository ets) {
         this.us = us;
         this.ot = ot;
         this.assrr = assrr;
         this.ts = ts;
+        this.ets = ets;
     }
 
     @PostMapping(path = "/saveemploye")
@@ -67,7 +73,7 @@ public class UtilisateurRestAPI {
     }
 
     @PostMapping(path = "/saveentreprise")
-    public List<EntrepriseResponseDTO> saveentrep(@RequestBody EntrepriseRequestDTO et, HttpSession session) {
+    public ResponseEntity<?> saveentrep(@RequestBody EntrepriseRequestDTO et, HttpSession session) {
         UtilisateurResponseDTO utilisateurConnecte = (UtilisateurResponseDTO) session
                 .getAttribute("utilisateurConnecte");
 
@@ -103,6 +109,15 @@ public class UtilisateurRestAPI {
         // Valider le token
         ConfirmationToken tokenData = ts.getTokenData(token);
         if (tokenData == null) {
+
+            List<Assurance> inactiveAssurances = assrr.findByStatus(Status.INACTIF);
+
+            if (inactiveAssurances.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Aucun employé inactif trouvé.");
+            }
+
+            assrr.deleteAll(inactiveAssurances);
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token invalide ou expiré.");
         }
 
@@ -115,6 +130,30 @@ public class UtilisateurRestAPI {
         // Activer l'assurance
         assurance.setStatus(Status.ACTIF);
         assrr.save(assurance);
+
+        // Supprimer le token
+        ts.deleteToken(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Compte confirmé avec succès.");
+    }
+
+    @GetMapping("/confirm/entreprise")
+    public ResponseEntity<?> confirmAccountE(@RequestParam("token") String token) {
+        // Valider le token
+        ConfirmationToken tokenData = ts.getTokenData(token);
+        if (tokenData == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token invalide ou expiré.");
+        }
+
+        // Récupérer l'assurance via l'email
+        Entreprise entreprise = ets.findByEmail(tokenData.getEmail());
+        if (entreprise == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Entreprise non trouvée.");
+        }
+
+        // Activer l'assurance
+        entreprise.setStatus(Status.ACTIF);
+        ets.save(entreprise);
 
         // Supprimer le token
         ts.deleteToken(token);

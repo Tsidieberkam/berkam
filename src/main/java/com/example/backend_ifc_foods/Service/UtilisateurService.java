@@ -17,7 +17,7 @@ import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 
 public interface UtilisateurService {
     public  ResponseEntity<?> inscrip(EmployeRequestDTO ures);
-    public List<EntrepriseResponseDTO> inscriptent(EntrepriseRequestDTO enrdto ,UtilisateurResponseDTO utilisateurConnecte);
+    public ResponseEntity<?> inscriptent(EntrepriseRequestDTO enrdto ,UtilisateurResponseDTO utilisateurConnecte);
     public List<EmployeResponseDTO> listemploye();
     public List<EntrepriseResponseDTO> listentreprise();
     public ResponseEntity<?> inscriptass(AssuranceRequestDTO assuranceRequestDTO );
