@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.backend_ifc_foods.Repository.AssuranceRepository;
 import com.example.backend_ifc_foods.Repository.EmployeRepository;
 import com.example.backend_ifc_foods.Repository.EntrepriseRepository;
+import com.example.backend_ifc_foods.Repository.Partenaire_ShopRepository;
 import com.example.backend_ifc_foods.Repository.UtilisateurRepository;
 import com.example.backend_ifc_foods.dto.AssuranceRequestDTO;
 import com.example.backend_ifc_foods.dto.AssuranceResponseDTO;
@@ -25,11 +26,13 @@ import com.example.backend_ifc_foods.dto.EmployeResponseDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
 import com.example.backend_ifc_foods.dto.OtpDataRequestDTO;
+import com.example.backend_ifc_foods.dto.Partenaire_ShopRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 import com.example.backend_ifc_foods.entite.Assurance;
 import com.example.backend_ifc_foods.entite.Employee;
 import com.example.backend_ifc_foods.entite.Entreprise;
+import com.example.backend_ifc_foods.entite.Partenaire_Shop;
 import com.example.backend_ifc_foods.entite.Role;
 import com.example.backend_ifc_foods.entite.Status;
 import com.example.backend_ifc_foods.entite.Utilisateur;
@@ -42,6 +45,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     private EntrepriseRepository ersi;
     private EmployeRepository erty;
     private AssuranceRepository assrr;
+    private Partenaire_ShopRepository psss;
 
     @Autowired
     private OtpService otpService;
@@ -53,11 +57,12 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     private EmailService emailService;
 
     public Utilisateurserviceimpl(UtilisateurRepository utire, EntrepriseRepository ersi, EmployeRepository erty,
-            AssuranceRepository assrr) {
+            AssuranceRepository assrr , Partenaire_ShopRepository psss) {
         this.utire = utire;
         this.ersi = ersi;
         this.erty = erty;
         this.assrr = assrr;
+        this.psss=psss;
 
     }
 
@@ -71,7 +76,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             em.setVille(ures.getVille());
             em.setEmail(ures.getEmail());
             em.setPassword(ures.getPassword());
-            em.setDate_inscription(new Date());
+            em.setDateinscription(new Date());
             em.setRole(Role.EMPLOYE);
             em.setStatus(Status.INACTIF);
 
@@ -120,7 +125,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             erl.setPassword(e.getPassword());
             erl.setVille(e.getVille());
             erl.setQuartier(e.getQuartier());
-            erl.setDate_inscription(e.getDate_inscription());
+            erl.setDate_inscription(e.getDateinscription());
             erl.setRoles(e.getRole());
             erl.setStatus(e.getStatus());
             erl.setEntreprise(e.getEntreprise());
@@ -172,7 +177,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         entreprise.setPassword(enrdto.getPassword());
         entreprise.setRole(Role.ENTREPRISE);
         entreprise.setStatus(Status.EN_ATTENTE);
-        entreprise.setDate_inscription(new Date());
+        entreprise.setDateinscription(new Date());
         entreprise.setDomaine_activite(enrdto.getDomaine_activite());
 
         // Récupérer l'assurance associée
@@ -189,7 +194,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         tokenService.saveToken(savedAssurance.getEmail(), confirmationToken);
 
         // Construire le lien de confirmation
-        String confirmationUrl = "https://3055-102-244-45-236.ngrok-free.app/api/confirm/entreprise?token=" + confirmationToken;
+        String confirmationUrl = "https://5196-102-244-45-118.ngrok-free.app/api/confirm/entreprise?token=" + confirmationToken;
 
         // Construire le contenu de l'email
         String subject = "Confirmation de votre inscription en tant qu'entreprise";
@@ -222,7 +227,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             etres.setPassword(e.getPassword());
             etres.setRoles(e.getRole());
             etres.setStatus(e.getStatus());
-            etres.setDate_inscription(e.getDate_inscription());
+            etres.setDate_inscription(e.getDateinscription());
             etres.setDomaine_activite(e.getDomaine_activite());
             etres.setAssurance(e.getAssurance());
 
@@ -251,7 +256,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         assurance.setPassword(assuranceRequestDTO.getPassword());
         assurance.setRole(Role.ASSURANCE);
         assurance.setStatus(Status.INACTIF);
-        assurance.setDate_inscription(new Date());
+        assurance.setDateinscription(new Date());
 
         // Sauvegarder l'assurance temporairement
         Assurance savedAssurance = assrr.save(assurance);
@@ -261,7 +266,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         tokenService.saveToken(savedAssurance.getEmail(), confirmationToken);
 
         // Construire le lien de confirmation
-        String confirmationUrl = "https://3055-102-244-45-236.ngrok-free.app/api/confirm?token=" + confirmationToken;
+        String confirmationUrl = "https://5196-102-244-45-118.ngrok-free.app/api/confirm?token=" + confirmationToken;
 
         // Envoyer l'email de confirmation
         String subject = "Confirmation de votre compte Assurance";
@@ -288,7 +293,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
             etres.setPassword(e.getPassword());
             etres.setRoles(e.getRole());
             etres.setStatus(e.getStatus());
-            etres.setDate_inscription(e.getDate_inscription());
+            etres.setDate_inscription(e.getDateinscription());
             etres.setCode_ifc(e.getCode_ifc());
 
             hj.add(etres);
@@ -304,5 +309,45 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         int otp = 100000 + random.nextInt(900000); // Génère un nombre entre 100000 et 999999
         return String.valueOf(otp);
     }
+
+    @Override
+    public ResponseEntity<?> insparr(Partenaire_ShopRequestDTO partenaire_ShopRequestDTO) {
+        if (utire.findByNomAndEmail(partenaire_ShopRequestDTO.getNom(), partenaire_ShopRequestDTO.getEmail()) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Ce Shop existe déjà.");
+        }
+
+        // Créer une nouvelle assurance avec statut INACTIF
+        Partenaire_Shop partenaire_Shop1 = new Partenaire_Shop();
+        partenaire_Shop1.setDomaine(partenaire_ShopRequestDTO.getDomaine());
+        partenaire_Shop1.setNom(partenaire_ShopRequestDTO.getNom());
+        partenaire_Shop1.setTelephone(partenaire_ShopRequestDTO.getTelephone());
+        partenaire_Shop1.setVille(partenaire_ShopRequestDTO.getVille());
+        partenaire_Shop1.setQuartier(partenaire_ShopRequestDTO.getQuartier());
+        partenaire_Shop1.setEmail(partenaire_ShopRequestDTO.getEmail());
+        partenaire_Shop1.setPassword(partenaire_ShopRequestDTO.getPassword());
+        partenaire_Shop1.setRole(Role.SHOP);
+        partenaire_Shop1.setStatus(Status.EN_ATTENTE);
+        partenaire_Shop1.setDateinscription(new Date());
+
+        // Sauvegarder l'assurance temporairement
+        Partenaire_Shop savedpPartenaire_Shop = psss.save(partenaire_Shop1);
+
+        // Générer un token de confirmation
+        String confirmationToken = UUID.randomUUID().toString();
+        tokenService.saveToken(savedpPartenaire_Shop.getEmail(), confirmationToken);
+
+        // Construire le lien de confirmation
+        String confirmationUrl = "https://5196-102-244-45-118.ngrok-free.app/api/confirm/partenaire_shop?token=" + confirmationToken;
+
+        // Envoyer l'email de confirmation
+        String subject = "Confirmation de votre compte Shop";
+        String body = String.format(
+                "Bonjour %s,\n\nMerci de vous être inscrit. Cliquez sur le lien ci-dessous pour confirmer votre compte :\n%s\n\nCordialement,\nL'équipe EasyFoods.",
+                partenaire_Shop1.getNom(), confirmationUrl);
+        emailService.sendEmail(partenaire_Shop1.getEmail(), subject, body);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body("Un email de confirmation a été envoyé.");
+    }
+    
 
 }

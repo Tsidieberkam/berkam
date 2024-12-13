@@ -32,8 +32,8 @@ public class Utilisateur {
     private String email;
     @Column(name="motdepasse")
     private String password;
-    @Column(name="date_inscription")
-    private Date date_inscription;
+    @Column(name="dateinscription")
+    private Date dateinscription;
     @Enumerated(EnumType.STRING) 
     private Role role;
     @Enumerated(EnumType.STRING) 

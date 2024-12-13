@@ -12,7 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**") // Autoriser tous les endpoints
                 .allowedOrigins(
                         "http://localhost:4200", // Origine Angular locale
-                        "https://3055-102-244-45-236.ngrok-free.app" // Domaine statique via ngrok
+                        "https://5196-102-244-45-118.ngrok-free.app" // Domaine statique via ngrok
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Méthodes autorisées
                 .allowedHeaders("*") // Autoriser tous les en-têtes

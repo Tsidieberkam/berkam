@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.example.backend_ifc_foods.Repository.AssuranceRepository;
 import com.example.backend_ifc_foods.Repository.EntrepriseRepository;
+import com.example.backend_ifc_foods.Repository.Partenaire_ShopRepository;
 import com.example.backend_ifc_foods.Service.OtpService;
 import com.example.backend_ifc_foods.Service.TokenService;
 import com.example.backend_ifc_foods.Service.UtilisateurService;
@@ -25,12 +26,14 @@ import com.example.backend_ifc_foods.dto.EmployeResponseDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
 import com.example.backend_ifc_foods.dto.OtpDataRequestDTO;
+import com.example.backend_ifc_foods.dto.Partenaire_ShopRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 import com.example.backend_ifc_foods.entite.Assurance;
 import com.example.backend_ifc_foods.entite.ConfirmationToken;
 import com.example.backend_ifc_foods.entite.Employee;
 import com.example.backend_ifc_foods.entite.Entreprise;
+import com.example.backend_ifc_foods.entite.Partenaire_Shop;
 import com.example.backend_ifc_foods.entite.Status;
 
 import jakarta.servlet.http.HttpSession;
@@ -45,14 +48,16 @@ public class UtilisateurRestAPI {
     AssuranceRepository assrr;
     TokenService ts;
     EntrepriseRepository ets;
+    Partenaire_ShopRepository psr;
 
     public UtilisateurRestAPI(UtilisateurService us, OtpService ot, AssuranceRepository assrr, TokenService ts,
-            EntrepriseRepository ets) {
+            EntrepriseRepository ets ,Partenaire_ShopRepository psr) {
         this.us = us;
         this.ot = ot;
         this.assrr = assrr;
         this.ts = ts;
         this.ets = ets;
+        this.psr=psr;
     }
 
     @PostMapping(path = "/saveemploye")
@@ -87,6 +92,11 @@ public class UtilisateurRestAPI {
     @PostMapping(path = "/saveassurance")
     public ResponseEntity<?> saveassur(@RequestBody AssuranceRequestDTO ass) {
         return us.inscriptass(ass);
+    }
+
+    @PostMapping(path = "/savepartenaireshop")
+    public ResponseEntity<?> savepart(@RequestBody Partenaire_ShopRequestDTO prs) {
+        return us.insparr(prs);
     }
 
     @GetMapping(path = "/employee/liste")
@@ -154,6 +164,31 @@ public class UtilisateurRestAPI {
         // Activer l'assurance
         entreprise.setStatus(Status.ACTIF);
         ets.save(entreprise);
+
+        // Supprimer le token
+        ts.deleteToken(token);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Compte confirmé avec succès.");
+    }
+
+
+    @GetMapping("/confirm/partenaire_shop")
+    public ResponseEntity<?> confirmAccountP(@RequestParam("token") String token) {
+        // Valider le token
+        ConfirmationToken tokenData = ts.getTokenData(token);
+        if (tokenData == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Token invalide ou expiré.");
+        }
+
+        // Récupérer l'assurance via l'email
+        Partenaire_Shop partenaire_Shop = psr.findByEmail(tokenData.getEmail());
+        if (partenaire_Shop == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Assurance non trouvée.");
+        }
+
+        // Activer l'assurance
+        partenaire_Shop.setStatus(Status.ACTIF);
+        psr.save(partenaire_Shop);
 
         // Supprimer le token
         ts.deleteToken(token);
