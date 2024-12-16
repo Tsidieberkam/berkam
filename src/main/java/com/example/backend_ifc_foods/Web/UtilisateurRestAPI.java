@@ -27,6 +27,7 @@ import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
 import com.example.backend_ifc_foods.dto.OtpDataRequestDTO;
 import com.example.backend_ifc_foods.dto.Partenaire_ShopRequestDTO;
+import com.example.backend_ifc_foods.dto.Partenaire_ShopResponseDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 import com.example.backend_ifc_foods.entite.Assurance;
@@ -103,6 +104,12 @@ public class UtilisateurRestAPI {
     public List<EmployeResponseDTO> allemploye() {
         return us.listemploye();
     }
+
+    @GetMapping(path = "/parte/liste")
+    public List<Partenaire_ShopResponseDTO> allshop() {
+        return us.listass();
+    }
+
 
     @GetMapping(path = "/entreprise/liste")
     public List<EntrepriseResponseDTO> allentreprise() {

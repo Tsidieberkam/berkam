@@ -15,21 +15,27 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.backend_ifc_foods.Repository.AssuranceRepository;
+import com.example.backend_ifc_foods.Repository.CompteRepository;
 import com.example.backend_ifc_foods.Repository.EmployeRepository;
 import com.example.backend_ifc_foods.Repository.EntrepriseRepository;
 import com.example.backend_ifc_foods.Repository.Partenaire_ShopRepository;
 import com.example.backend_ifc_foods.Repository.UtilisateurRepository;
 import com.example.backend_ifc_foods.dto.AssuranceRequestDTO;
 import com.example.backend_ifc_foods.dto.AssuranceResponseDTO;
+import com.example.backend_ifc_foods.dto.CompteRequestDTO;
 import com.example.backend_ifc_foods.dto.EmployeRequestDTO;
 import com.example.backend_ifc_foods.dto.EmployeResponseDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseRequestDTO;
 import com.example.backend_ifc_foods.dto.EntrepriseResponseDTO;
 import com.example.backend_ifc_foods.dto.OtpDataRequestDTO;
 import com.example.backend_ifc_foods.dto.Partenaire_ShopRequestDTO;
+import com.example.backend_ifc_foods.dto.Partenaire_ShopResponseDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurRequestDTO;
 import com.example.backend_ifc_foods.dto.UtilisateurResponseDTO;
 import com.example.backend_ifc_foods.entite.Assurance;
+import com.example.backend_ifc_foods.entite.Compte_Credit;
+import com.example.backend_ifc_foods.entite.Compte_Entreprise;
+import com.example.backend_ifc_foods.entite.Compte_Partenaite_Shop;
 import com.example.backend_ifc_foods.entite.Employee;
 import com.example.backend_ifc_foods.entite.Entreprise;
 import com.example.backend_ifc_foods.entite.Partenaire_Shop;
@@ -46,6 +52,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     private EmployeRepository erty;
     private AssuranceRepository assrr;
     private Partenaire_ShopRepository psss;
+    private  CompteRepository compteCreditRepository;
 
     @Autowired
     private OtpService otpService;
@@ -57,12 +64,13 @@ public class Utilisateurserviceimpl implements UtilisateurService {
     private EmailService emailService;
 
     public Utilisateurserviceimpl(UtilisateurRepository utire, EntrepriseRepository ersi, EmployeRepository erty,
-            AssuranceRepository assrr , Partenaire_ShopRepository psss) {
+            AssuranceRepository assrr, Partenaire_ShopRepository psss , CompteRepository compteCreditRepository) {
         this.utire = utire;
         this.ersi = ersi;
         this.erty = erty;
         this.assrr = assrr;
-        this.psss=psss;
+        this.psss = psss;
+        this.compteCreditRepository=compteCreditRepository;
 
     }
 
@@ -89,7 +97,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
 
             // Génération et envoi de l'OTP
             String otp = generateOtp();
-            OtpDataRequestDTO p = new OtpDataRequestDTO(em.getEmail(), 4, otp);
+            OtpDataRequestDTO p = new OtpDataRequestDTO(em.getEmail(), 15, otp);
             otpService.saveOtp(p);
             String subject = "Vérification de votre email";
             String body = "Votre code de vérification est : " + otp;
@@ -194,7 +202,8 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         tokenService.saveToken(savedAssurance.getEmail(), confirmationToken);
 
         // Construire le lien de confirmation
-        String confirmationUrl = "https://5196-102-244-45-118.ngrok-free.app/api/confirm/entreprise?token=" + confirmationToken;
+        String confirmationUrl = "https://ad5f-102-244-45-248.ngrok-free.app/api/confirm/entreprise?token="
+                + confirmationToken;
 
         // Construire le contenu de l'email
         String subject = "Confirmation de votre inscription en tant qu'entreprise";
@@ -266,7 +275,7 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         tokenService.saveToken(savedAssurance.getEmail(), confirmationToken);
 
         // Construire le lien de confirmation
-        String confirmationUrl = "https://5196-102-244-45-118.ngrok-free.app/api/confirm?token=" + confirmationToken;
+        String confirmationUrl = "https://ad5f-102-244-45-248.ngrok-free.app/api/confirm?token=" + confirmationToken;
 
         // Envoyer l'email de confirmation
         String subject = "Confirmation de votre compte Assurance";
@@ -337,7 +346,8 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         tokenService.saveToken(savedpPartenaire_Shop.getEmail(), confirmationToken);
 
         // Construire le lien de confirmation
-        String confirmationUrl = "https://5196-102-244-45-118.ngrok-free.app/api/confirm/partenaire_shop?token=" + confirmationToken;
+        String confirmationUrl = "https://df25-102-244-45-248.ngrok-free.app/api/confirm/partenaire_shop?token="
+                + confirmationToken;
 
         // Envoyer l'email de confirmation
         String subject = "Confirmation de votre compte Shop";
@@ -347,6 +357,85 @@ public class Utilisateurserviceimpl implements UtilisateurService {
         emailService.sendEmail(partenaire_Shop1.getEmail(), subject, body);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Un email de confirmation a été envoyé.");
+    }
+
+    @Override
+    public List<Partenaire_ShopResponseDTO> listass() {
+
+        List<Partenaire_Shop> asus = psss.findAll();
+        List<Partenaire_ShopResponseDTO> psr = new ArrayList<>();
+
+        for (Partenaire_Shop p : asus) {
+
+            Partenaire_ShopResponseDTO pes = new Partenaire_ShopResponseDTO();
+            pes.setId_utilisateur(p.getId_utilisateur());
+            pes.setNom(p.getNom());
+            pes.setQuartier(p.getQuartier());
+            pes.setVille(p.getVille());
+            pes.setDate_inscription(p.getDateinscription());
+            pes.setEmail(p.getEmail());
+            pes.setRoles(p.getRole());
+            pes.setStatus(p.getStatus());
+            pes.setTelephone(p.getTelephone());
+            pes.setDomaine(p.getDomaine());
+
+            psr.add(pes);
+
+        }
+
+        return psr;
+    }
+
+    @Override
+    public ResponseEntity<?> creercompte(UtilisateurResponseDTO ur, CompteRequestDTO up) {
+    
+        // Récupérer l'utilisateur par son ID
+        Utilisateur utilisateur = ersi.findById(ur.getId_utilisateur())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Utilisateur non trouvé"));
+    
+        // Vérification du type d'utilisateur
+        if (utilisateur instanceof Employee) {
+            // Création d'un compte crédit
+            Compte_Credit compteCredit = new Compte_Credit();
+            compteCredit.setDate_creation(new Date());
+            compteCredit.setUtilisateur(utilisateur);
+    
+            // Sauvegarde du compte crédit
+            compteCreditRepository.save(compteCredit);
+    
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Compte crédit créé avec succès pour l'utilisateur : " + utilisateur.getNom());
+    
+        } else if (utilisateur instanceof Entreprise) {
+            // Création d'un compte entreprise
+            Compte_Entreprise compteEntreprise = new Compte_Entreprise();
+            compteEntreprise.setDate_creation(new Date());
+            compteEntreprise.setSolde(up.getSolde());
+            compteEntreprise.setUtilisateur(utilisateur);
+    
+            // Sauvegarde du compte entreprise
+            compteCreditRepository.save(compteEntreprise);
+    
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Compte entreprise créé avec succès pour l'entreprise : " + utilisateur.getNom());
+    
+        } else if (utilisateur instanceof Partenaire_Shop) {
+            // Création d'un compte partenariat shop
+            Compte_Partenaite_Shop comptePartenaireShop = new Compte_Partenaite_Shop();
+            comptePartenaireShop.setDate_creation(new Date());
+            comptePartenaireShop.setUtilisateur(utilisateur);
+    
+            // Sauvegarde du compte partenariat shop
+            compteCreditRepository.save(comptePartenaireShop);
+    
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Compte partenaire créé avec succès pour le partenaire : " + utilisateur.getNom());
+    
+        } else {
+            // Si le type d'utilisateur est inconnu
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Type d'utilisateur non reconnu pour la création d'un compte.");
+        }
     }
     
 
